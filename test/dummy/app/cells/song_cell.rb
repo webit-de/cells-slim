@@ -48,6 +48,10 @@ class SongCell < Cell::ViewModel
     render
   end
 
+  def with_new_tag_builder
+    tag.div 'rails 5 style'
+  end
+
 private
   def cap
     "yay, #{with_output_buffer { yield } }"

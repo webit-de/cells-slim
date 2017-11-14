@@ -33,7 +33,7 @@
 = form_tag_with_body( {url: "/rails/escapes/too/much"}, %{<input type="button"/>})
 
 
-= form_for OpenStruct.new, url: "/", as: "open" do |f|
+= form_for OpenStruct.new, url: "/", as: "open", remote: true, method: :patch do |f|
   = f.text_field :id
 
 = concatting

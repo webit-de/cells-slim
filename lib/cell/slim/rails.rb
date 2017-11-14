@@ -37,12 +37,34 @@ module Cell
         "#{tag(:form, html_options, true) + extra_tags}"
       end
 
+      def utf8_enforcer_tag
+        super.to_str
+      end
+
+      class SafeBufferToStringWrapper < SimpleDelegator
+        def self.ensure_string(something)
+          # ActiveSupport::SafeBuffer is also a String
+          if something.is_a?(String)
+            something.to_str
+          else
+            # with rails 5 we could get a TagBuilder by using tag.div('foo'),
+            # that we need to wrap to be sure to get a String in the end
+            new(something)
+          end
+        end
+
+        # calling a method on a tag builder should ensure it returns a plain String
+        def method_missing(method, *args, &block)
+          self.class.ensure_string(super)
+        end
+      end
+
       def tag(name = nil, options = nil, open = false, escape = true)
-        super(name, options, open, true)
+        SafeBufferToStringWrapper.ensure_string(super(name, options, open, false))
       end
 
       def content_tag(name, content_or_options_with_block = nil, options = nil, escape = true, &block)
-        super(name, content_or_options_with_block, options, false, &block)
+        super(name, content_or_options_with_block, options, false, &block).to_str
       end
 
       def concat(string)
